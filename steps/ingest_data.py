@@ -8,28 +8,33 @@ class IngestData:
     returns a DataFrame.
     """
 
-    def __init__(self, data_path: str):
+    def __init__(self, data_paths: list[str]):
         """Initialize the data ingestion class."""
-        self.data_path = data_path
+        self.data_paths = data_paths
 
     def get_data(self):
-        logging.info(f"Ingesting data from {self.data_path}")
-        return pd.read_csv(self.data_path)
+        dfs = []
+        for data_path in self.data_paths:
+            logging.info(f"Ingesting data from {data_path}")
+            df = pd.read_csv(data_path)
+            dfs.append(df)
+
+        return pd.merge(left=dfs[0], right=dfs[1], on='title')
 
 
 @step
-def ingest_df(data_path: str) -> pd.DataFrame:
+def ingest_df(data_paths: list[str]) -> pd.DataFrame:
     """
     Ingesting the data from the data_path
 
     Args:
-        data_path: path to the data
+        data_paths: paths to the data
     Returns:
         pd.DataFrame: the ingested data
     """
 
     try:
-        ingest_data = IngestData(data_path)
+        ingest_data = IngestData(data_paths)
         df =ingest_data.get_data()
         return df
     except Exception as e:
